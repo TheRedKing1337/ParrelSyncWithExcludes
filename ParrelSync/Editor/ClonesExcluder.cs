@@ -16,6 +16,7 @@ namespace ParrelSync
         private static string[] _foldersToIgnore =
         {
             //"Assets/Settings/PlayerSpecificSomething",
+            "Sub1"
         };
 
         /// <summary>
@@ -30,6 +31,7 @@ namespace ParrelSync
             {
                 _fullPathsToIgnore = new string[_foldersToIgnore.Length];
                 string projectPath = Application.dataPath.Replace("/Assets", "");
+                projectPath = "C:\\Users\\tijme\\Desktop\\VRCadeRandom\\TestToCopyFrom";
 
                 for (int i = 0; i < _foldersToIgnore.Length; i++)
                 {
@@ -40,8 +42,15 @@ namespace ParrelSync
             //For each ignored path
             for (int i = 0; i < _fullPathsToIgnore.Length; i++)
             {
-                //If sourcePath is in one of the ignored hierarchies
-                if (_fullPathsToIgnore[i].Contains(sourcePath))
+                //If this is the folder to ignore
+                if (_fullPathsToIgnore[i] == sourcePath)
+                {
+                    //Copy the source folder but don't link it
+                    CopyFilesRecursively(sourcePath, destinationPath);
+                }
+                //Else if sourcePath is part of one of the ignored directories
+                //Create a local folder and try to link all sub directories and files
+                else if (_fullPathsToIgnore[i].Contains(sourcePath))
                 {
                     //Create empty local folder
                     Directory.CreateDirectory(destinationPath);
@@ -54,6 +63,21 @@ namespace ParrelSync
                 }
             }
             return false;
+        }
+        
+        private static void CopyFilesRecursively(string sourcePath, string targetPath)
+        {
+            //Now Create all of the directories
+            foreach (string dirPath in Directory.GetDirectories(sourcePath, "*", SearchOption.AllDirectories))
+            {
+                Directory.CreateDirectory(dirPath.Replace(sourcePath, targetPath));
+            }
+
+            //Copy all the files & Replaces any files with the same name
+            foreach (string newPath in Directory.GetFiles(sourcePath, "*.*",SearchOption.AllDirectories))
+            {
+                File.Copy(newPath, newPath.Replace(sourcePath, targetPath), true);
+            }
         }
 
         private static void LinkSubDirectories(string sourcePath, string destinationPath)

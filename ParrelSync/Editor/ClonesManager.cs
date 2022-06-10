@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEditor;
@@ -363,6 +364,12 @@ namespace ParrelSync
         /// <param name="destinationPath"></param>
         public static void LinkFolders(string sourcePath, string destinationPath)
         {
+            //If path is ignored dont link folders
+            if(ClonesExcluder.IsPathIgnored(sourcePath, destinationPath))
+            {
+                return;
+            }
+            
             if ((Directory.Exists(destinationPath) == false) && (Directory.Exists(sourcePath) == true))
             {
                 switch (Application.platform)
@@ -385,6 +392,47 @@ namespace ParrelSync
             {
                 Debug.LogWarning("Skipping Asset link, it already exists: " + destinationPath);
             }
+        }
+        
+        
+        public static void LinkFiles(string sourcePath, string destinationPath)
+        {
+            if ((File.Exists(destinationPath) == false) && File.Exists(sourcePath) == true)
+            {
+                switch (Application.platform)
+                {
+                    case (RuntimePlatform.WindowsEditor):
+                        CreateFileLinkWin(sourcePath, destinationPath);
+                        break;
+                    case (RuntimePlatform.OSXEditor):
+                        //CreateLinkMac(sourcePath, destinationPath);
+                        throw new NotImplementedException("No mac file linking code");
+                        break;
+                    case (RuntimePlatform.LinuxEditor):
+                        //CreateLinkLinux(sourcePath, destinationPath);
+                        throw new NotImplementedException("No linux file linking code");
+                        break;
+                    default:
+                        Debug.LogWarning("Not in a known editor. Application.platform: " + Application.platform);
+                        break;
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Skipping Asset link, it already exists: " + destinationPath);
+            }
+        }
+        
+        /// <summary>
+        /// Hard links as symbolic link needs admin rights for files
+        /// </summary>
+        /// <param name="sourcePath"></param>
+        /// <param name="destinationPath"></param>
+        private static void CreateFileLinkWin(string sourcePath, string destinationPath)
+        {
+            string cmd = "/C mklink /h " + string.Format("\"{0}\" \"{1}\"", destinationPath, sourcePath);
+            Debug.Log("Windows junction: " + cmd);
+            ClonesManager.StartHiddenConsoleProcess("cmd.exe", cmd);
         }
 
         #endregion

@@ -16,6 +16,7 @@ namespace ParrelSync
         private static string[] _foldersToIgnore =
         {
             //"Assets/Settings/PlayerSpecificSomething",
+            "Assets/XR"
         };
 
         /// <summary>
@@ -34,21 +35,24 @@ namespace ParrelSync
                 for (int i = 0; i < _foldersToIgnore.Length; i++)
                 {
                     _fullPathsToIgnore[i] = Path.Combine(projectPath, _foldersToIgnore[i]);
-                }    
+                    _fullPathsToIgnore[i] = _fullPathsToIgnore[i].Replace("\\","/");
+                    
+                }
             }
-            
+
             //For each ignored path
             for (int i = 0; i < _fullPathsToIgnore.Length; i++)
             {
                 //If this is the folder to ignore
-                if (_fullPathsToIgnore[i] == sourcePath)
+                string normalizedSourcePath = sourcePath.Replace("\\", "/");
+                if (_fullPathsToIgnore[i] == normalizedSourcePath)
                 {
                     //Copy the source folder but don't link it
                     CopyFilesRecursively(sourcePath, destinationPath);
                 }
                 //Else if sourcePath is part of one of the ignored directories
                 //Create a local folder and try to link all sub directories and files
-                else if (_fullPathsToIgnore[i].Contains(sourcePath))
+                else if (_fullPathsToIgnore[i].Contains(normalizedSourcePath))
                 {
                     //Create empty local folder
                     Directory.CreateDirectory(destinationPath);

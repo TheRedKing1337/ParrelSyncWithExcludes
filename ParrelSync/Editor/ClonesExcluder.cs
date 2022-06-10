@@ -16,7 +16,6 @@ namespace ParrelSync
         private static string[] _foldersToIgnore =
         {
             //"Assets/Settings/PlayerSpecificSomething",
-            "Sub1"
         };
 
         /// <summary>
@@ -31,7 +30,6 @@ namespace ParrelSync
             {
                 _fullPathsToIgnore = new string[_foldersToIgnore.Length];
                 string projectPath = Application.dataPath.Replace("/Assets", "");
-                projectPath = "C:\\Users\\tijme\\Desktop\\VRCadeRandom\\TestToCopyFrom";
 
                 for (int i = 0; i < _foldersToIgnore.Length; i++)
                 {
